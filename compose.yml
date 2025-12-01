@@ -6,7 +6,7 @@
 services:
   fitbit-fetch-data:
     restart: unless-stopped
-    image: thisisarpanghosh/fitbit-fetch-data:latest
+    image: fitbit-fetch-data:2.5
     container_name: fitbit-fetch-data
     volumes:
       - ./logs:/app/logs # logs folder should exist and owned by user id 1500 for influxdb v1.11
@@ -35,44 +35,3 @@ services:
       - CLIENT_SECRET=your_application_client_secret # Change this to your client Secret
       - DEVICENAME=Your_Device_Name # e.g. "Charge5"
       - LOCAL_TIMEZONE=Automatic # set to "Automatic" for Automatic setup from User profile (if not mentioned here specifically). 
-    depends_on:
-      - influxdb             
-
-  # We are using influxdb 1.8 in this stack (tested and optimized - better dashboard support)
-  influxdb:
-    restart: unless-stopped
-    container_name: influxdb
-    hostname: influxdb
-    environment:
-      - INFLUXDB_DB=FitbitHealthStats
-      - INFLUXDB_USER=fitbit_user
-      - INFLUXDB_USER_PASSWORD=fitbit_password
-      - INFLUXDB_DATA_INDEX_VERSION=tsi1
-      ###############################################################################
-      # The following ENV variables are applicable for InfluxDB V3 - No effect for V1
-      ###############################################################################
-      # - INFLUXDB3_MAX_HTTP_REQUEST_SIZE=10485760
-      # - INFLUXDB3_NODE_IDENTIFIER_PREFIX=Influxdb-node1
-      # - INFLUXDB3_BUCKET=GarminStats
-      # - INFLUXDB3_OBJECT_STORE=file
-      # - INFLUXDB3_DB_DIR=/data
-      # - INFLUXDB3_QUERY_FILE_LIMIT=5000 # this set to be a very high value if you want to view long term data
-    ports:
-      - '8086:8086' # Influxdb V3 should map as "8181:8181" (Change INFLUXDB_PORT to 8181 on garmin-fetch-data appropriately for InfluxDB V3)
-    volumes:
-      - ./influxdb:/var/lib/influxdb # InfluxDB V3 bind mount should be set like - ./influxdb:/data if you set INFLUXDB3_DB_DIR=/data (instead of /var/lib/influxdb) - must be owned by 1500:1500 for influxdb v1.11
-    image: 'influxdb:1.11' # You must change this to 'quay.io/influxdb/influxdb3-core:latest' for influxdb V3
-
-  grafana:
-    restart: unless-stopped
-    container_name: grafana
-    hostname: grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_PLUGINS_PREINSTALL=marcusolsson-hourly-heatmap-panel
-    volumes:
-      - './grafana:/var/lib/grafana' # Must be owned by 472:472
-    ports:
-      - '3000:3000'
-    image: 'grafana/grafana:latest'

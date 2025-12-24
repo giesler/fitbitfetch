@@ -279,7 +279,8 @@ def update_working_dates():
 
 # Get last synced battery level of the device
 def get_battery_level():
-    device = request_data_from_fitbit("https://api.fitbit.com/1/user/-/devices.json")[0]
+    logging.info(request_data_from_fitbit("https://api.fitbit.com/1/user/-/devices.json"))
+    device = request_data_from_fitbit("https://api.fitbit.com/1/user/-/devices.json")[1]
     if device != None:
         collected_records.append({
             "measurement": "DeviceBatteryLevel",

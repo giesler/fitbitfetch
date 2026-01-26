@@ -500,27 +500,27 @@ def get_daily_data_limit_365d(start_date_str, end_date_str):
             logging.error("Recording failed : " + activity_type + " for date " + start_date_str + " to " + end_date_str)
         
 
-    activity_others_list = ["distance", "calories", "steps"]
-    for activity_type in activity_others_list:
-        activity_others_data_list = request_data_from_fitbit('https://api.fitbit.com/1/user/-/activities/tracker/' + activity_type + '/date/' + start_date_str + '/' + end_date_str + '.json').get("activities-tracker-"+activity_type)
-        if activity_others_data_list != None:
-            for data in activity_others_data_list:
-                log_time = datetime.fromisoformat(data["dateTime"] + "T" + "00:00:00")
-                utc_time = LOCAL_TIMEZONE.localize(log_time).astimezone(pytz.utc).isoformat()
-                activity_name = "Total Steps" if activity_type == "steps" else activity_type
-                collected_records.append({
-                        "measurement": activity_name,
-                        "time": utc_time,
-                        "tags": {
-                            "Device": DEVICENAME
-                        },
-                        "fields": {
-                            "value" : float(data["value"])
-                        }
-                    })
-            logging.info("Recorded " + activity_name + " for date " + start_date_str + " to " + end_date_str)
-        else:
-            logging.error("Recording failed : " + activity_name + " for date " + start_date_str + " to " + end_date_str)
+#    activity_others_list = ["distance", "calories", "steps"]
+#    for activity_type in activity_others_list:
+#        activity_others_data_list = request_data_from_fitbit('https://api.fitbit.com/1/user/-/activities/tracker/' + activity_type + '/date/' + start_date_str + '/' + end_date_str + '.json').get("activities-tracker-"+activity_type)
+#        if activity_others_data_list != None:
+#            for data in activity_others_data_list:
+#                log_time = datetime.fromisoformat(data["dateTime"] + "T" + "00:00:00")
+#                utc_time = LOCAL_TIMEZONE.localize(log_time).astimezone(pytz.utc).isoformat()
+#                activity_name = "Total Steps" if activity_type == "steps" else activity_type
+#                collected_records.append({
+#                        "measurement": activity_name,
+#                        "time": utc_time,
+#                        "tags": {
+#                            "Device": DEVICENAME
+#                        },
+#                        "fields": {
+#                            "value" : float(data["value"])
+#                        }
+#                    })
+#            logging.info("Recorded " + activity_name + " for date " + start_date_str + " to " + end_date_str)
+#        else:
+#            logging.error("Recording failed : " + activity_name + " for date " + start_date_str + " to " + end_date_str)
         
 
     HR_zones_data_list = request_data_from_fitbit('https://api.fitbit.com/1/user/-/activities/heart/date/' + start_date_str + '/' + end_date_str + '.json').get("activities-heart")
@@ -720,8 +720,8 @@ if AUTO_DATE_RANGE:
     date_list = [(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range((end_date - start_date).days + 1)]
     if len(date_list) > 3:
         logging.warn("Auto schedule update is not meant for more than 3 days at a time, please consider lowering the auto_update_date_range variable to aviod rate limit hit!")
-    for date_str in date_list:
-        get_intraday_data_limit_1d(date_str, [('heart','HeartRate_Intraday','1sec'),('steps','Steps_Intraday','1min')]) # 2 queries x number of dates ( default 2)
+#    for date_str in date_list:
+#        get_intraday_data_limit_1d(date_str, [('heart','HeartRate_Intraday','1sec'),('steps','Steps_Intraday','1min')]) # 2 queries x number of dates ( default 2)
     get_daily_data_limit_30d(start_date_str, end_date_str) # 3 queries
     get_daily_data_limit_100d(start_date_str, end_date_str) # 1 query
     get_daily_data_limit_365d(start_date_str, end_date_str) # 8 queries
@@ -764,8 +764,8 @@ else:
         do_bulk_update(get_daily_data_limit_100d, date_range[0], date_range[1])
     for date_range in yield_dates_with_gap(date_list, 28):
         do_bulk_update(get_daily_data_limit_30d, date_range[0], date_range[1])
-    for single_day in date_list:
-        do_bulk_update(get_intraday_data_limit_1d, single_day, [('heart','HeartRate_Intraday','1sec'),('steps','Steps_Intraday','1min')])
+#    for single_day in date_list:
+#        do_bulk_update(get_intraday_data_limit_1d, single_day, [('heart','HeartRate_Intraday','1sec'),('steps','Steps_Intraday','1min')])
 
     logging.info("Success : Bulk update complete for " + start_date_str + " to " + end_date_str)
     print("Bulk update complete!")
